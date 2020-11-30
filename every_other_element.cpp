@@ -2,7 +2,8 @@
 #include <cassert>
 #include <list>
 #include <iostream>
-#include <ranges> // C++20
+#include <chrono>
+//#include <ranges> // C++20
 
 template <typename Container>
 Container everyOtherByIndex(const Container &input, bool skipFirst) {
@@ -66,6 +67,7 @@ Contaier everyOtherViaCopyIf(const Contaier &input, bool skipFirst) {
     return result;
 }
 
+#if 0
 template <typename Contaier>
 Contaier everyOtherViaRanges(const Contaier &input, bool skipFirst) { // C++20
     Contaier result;
@@ -80,6 +82,14 @@ Contaier everyOtherViaRanges(const Contaier &input, bool skipFirst) { // C++20
 
     return result;
 }
+#endif
+
+
+long long measureExecutionTimeInMicroSecs(std::function<void()> fcnExecutor ){
+    auto startTimeStamp = std::chrono::high_resolution_clock::now();
+    fcnExecutor();
+    return std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::high_resolution_clock::now() - startTimeStamp ).count();
+}
 
 int main() {
     std::vector<int> testVector = {1, 2, 3, 4, 5};
@@ -89,7 +99,9 @@ int main() {
         assert(referenceVector == everyOtherUsingLessIterator(testVector, skipFirst));
         assert(referenceVector == everyOtherViaRangeBasedLoop(testVector, skipFirst));
         assert(referenceVector == everyOtherViaCopyIf(testVector, skipFirst));
+#if 0
         assert(referenceVector == everyOtherViaRanges(testVector, skipFirst));
+#endif
     }
 
     std::list<int> testList(testVector.begin(), testVector.end());
@@ -105,8 +117,19 @@ int main() {
 //        assert(referenceList == everyOtherUsingLessIterator(testList, skipFirst)); // doesnt work
         assert(referenceList == everyOtherViaRangeBasedLoop(testList, skipFirst));
         assert(referenceList == everyOtherViaCopyIf(testList, skipFirst));
+#if 0
         assert(referenceList == everyOtherViaRanges(testList, skipFirst));
+#endif
     }
+
+    const bool skipFirst = false;
+    std::vector<int> veryBigVector(100000, 0);
+
+    std::cout << "everyOtherByIndex : " << measureExecutionTimeInMicroSecs([&veryBigVector, skipFirst](){ everyOtherByIndex(veryBigVector, skipFirst); } ) << " mcs\n";
+    std::cout << "everyOtherByIterator : " << measureExecutionTimeInMicroSecs([&veryBigVector, skipFirst](){ everyOtherByIterator(veryBigVector, skipFirst); } ) << " mcs\n";
+    std::cout << "everyOtherUsingLessIterator : " << measureExecutionTimeInMicroSecs([&veryBigVector, skipFirst](){ everyOtherUsingLessIterator(veryBigVector, skipFirst); } ) << " mcs\n";
+    std::cout << "everyOtherViaRangeBasedLoop : " << measureExecutionTimeInMicroSecs([&veryBigVector, skipFirst](){ everyOtherViaRangeBasedLoop(veryBigVector, skipFirst); } ) << " mcs\n";
+    std::cout << "everyOtherViaCopyIf : " << measureExecutionTimeInMicroSecs([&veryBigVector, skipFirst](){ everyOtherViaRangeBasedLoop(veryBigVector, skipFirst); } ) << " mcs\n";
 
     return 0;
 }
