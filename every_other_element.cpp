@@ -2,7 +2,9 @@
 #include <cassert>
 #include <list>
 #include <iostream>
-#include <ranges> // C++20
+#ifdef __cpp_lib_ranges
+#include <ranges>
+#endif
 
 template <typename Container>
 Container everyOtherByIndex(const Container &input, bool skipFirst) {
@@ -66,6 +68,7 @@ Contaier everyOtherViaCopyIf(const Contaier &input, bool skipFirst) {
     return result;
 }
 
+#ifdef __cpp_lib_ranges
 template <typename Contaier>
 Contaier everyOtherViaRanges(const Contaier &input, bool skipFirst) { // C++20
     Contaier result;
@@ -80,6 +83,7 @@ Contaier everyOtherViaRanges(const Contaier &input, bool skipFirst) { // C++20
 
     return result;
 }
+#endif
 
 int main() {
     std::vector<int> testVector = {1, 2, 3, 4, 5};
@@ -89,7 +93,9 @@ int main() {
         assert(referenceVector == everyOtherUsingLessIterator(testVector, skipFirst));
         assert(referenceVector == everyOtherViaRangeBasedLoop(testVector, skipFirst));
         assert(referenceVector == everyOtherViaCopyIf(testVector, skipFirst));
+#ifdef __cpp_lib_ranges
         assert(referenceVector == everyOtherViaRanges(testVector, skipFirst));
+#endif
     }
 
     std::list<int> testList(testVector.begin(), testVector.end());
@@ -105,7 +111,9 @@ int main() {
 //        assert(referenceList == everyOtherUsingLessIterator(testList, skipFirst)); // doesnt work
         assert(referenceList == everyOtherViaRangeBasedLoop(testList, skipFirst));
         assert(referenceList == everyOtherViaCopyIf(testList, skipFirst));
+#ifdef __cpp_lib_ranges
         assert(referenceList == everyOtherViaRanges(testList, skipFirst));
+#endif
     }
 
     return 0;
