@@ -16,6 +16,7 @@ double timeExecution(Func func, Args ...args) {
 }
 
 struct MinPair {
+    MinPair(double val, double min) : val(val), min(min) {}
     double val;
     double min;
 };
@@ -73,14 +74,23 @@ int main() {
     std::mt19937 generator{std::random_device{}()};
 
     std::vector<double> vals;
-    int testSize = 10000000;
+    int testSize = 1'000'000;
     for (int i = 0; i < testSize; ++i) {
         vals.emplace_back(generator());
     }
+    int testCount = 100;
 
-    auto pairTime = timeExecution(testStack<PairMinStack>, vals);
-    auto doubleStackTime = timeExecution(testStack<DoubleStackMinStack>, vals);
+    double totalDoubleStackTime = 0.;
+    for (int i = 0; i < testCount; ++i) {
+        auto doubleStackTime = timeExecution(testStack<DoubleStackMinStack>, vals);
+        totalDoubleStackTime += doubleStackTime;
+    }
 
-    std::cout << "pair time: " << pairTime << "s\n";
-    std::cout << "double stack time: " << doubleStackTime << "s\n";
+    double totalPairTime = 0;
+    for (int i = 0; i < testCount; ++i) {
+        auto pairTime = timeExecution(testStack<PairMinStack>, vals);
+        totalPairTime += pairTime;
+    }
+    std::cout << "pair time: " << totalPairTime << "s\n";
+    std::cout << "double stack time: " << totalDoubleStackTime << "s\n";
 }
